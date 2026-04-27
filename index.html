@@ -109,14 +109,14 @@
                 <div class="works__box">
                     <div class="works__item">
                         <div class="modal-btn" data-modal="modal01">
-                            <img src="img/works_thumb01.png" alt="" width="1260" height="840" class="works__thumb works__thumb">
+                            <img src="img/works_thumb01.webp" alt="" width="1260" height="840" class="works__thumb works__thumb">
                         </div>
                         <h4 class="works__item-title"></h4>
                         <p class="works__item-description"></p>
                     </div>
                     <div class="works__item">
                         <div class="modal-btn"  data-modal="modal02">
-                            <img src="img/works_thumb02.png" alt="" width="1260" height="840" class="works__thumb works__thumb">
+                            <img src="img/works_thumb02.webp" alt="" width="1260" height="840" class="works__thumb works__thumb">
                         </div>
                     </div>
                 </div>
@@ -133,116 +133,34 @@
         </div>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="js/swiper-bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const loadingScreen = document.getElementById('loadingScreen');
-            const isSP = window.matchMedia('(max-width: 768px)').matches;
-            let mySwiper = null;
-            let spObserver = null;
-        
-            document.body.classList.add('is-loading');
-        
-            function playSectionAnimation(target) {
-                if (!target) return;
-        
-                target.classList.add('fade-in');
-        
-                if (target.classList.contains('ripple-target')) {
-                    target.classList.remove('ripple-on');
-                    void target.offsetWidth;
-                    target.classList.add('ripple-on');
-                }
-            }
-        
-            function initPcSwiper() {
-                mySwiper = new Swiper('.swiper', {
-                    loop: false,
-                    mousewheel: true,
-                    allowTouchMove: true,
-                    pagination: {
-                        el: '.swiper-pagination',
-                        clickable: true,
-                    },
-                    on: {
-                        slideChangeTransitionEnd: function () {
-                            const activeSection = this.slides[this.activeIndex].querySelector('.l-section');
-                            playSectionAnimation(activeSection);
-                        }
-                    }
-                });
-            }
-        
-            function initSpObserver() {
-                const targets = document.querySelectorAll('.sp .about, .sp .works, .sp .contact');
-        
-                spObserver = new IntersectionObserver((entries, observer) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('fade-in');
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, {
-                    threshold: 0.3
-                });
-        
-                targets.forEach(target => spObserver.observe(target));
-            }
-        
-            function startPageAnimation() {
-                if (!isSP) {
-                    initPcSwiper();
-        
-                    setTimeout(() => {
-                        const activeSection = mySwiper.slides[mySwiper.activeIndex].querySelector('.l-section');
-                        playSectionAnimation(activeSection);
-                    }, 100);
-                } else {
-                    const fv = document.querySelector('.sp .fv');
-                    playSectionAnimation(fv);
-                    initSpObserver();
-                }
-            }
-        
-            // modal
-            $('.modal-btn').on('click', function () {
-                const modalId = $(this).data('modal');
+        document.querySelectorAll('.modal-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const modalId = btn.dataset.modal;
 
-                $('.modal').removeClass('open');
-                $('.overlay').addClass('open');
-                $('#' + modalId).addClass('open');
-                $('body').addClass('open');
+    document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+    document.querySelector('.overlay').classList.add('open');
+    document.getElementById(modalId).classList.add('open');
+    document.body.classList.add('open');
 
-                if (mySwiper) {
-                    mySwiper.disable();
-                }
-            });
+    if (typeof mySwiper !== 'undefined' && mySwiper) {
+      mySwiper.disable();
+    }
+  });
+});
 
-            $('.close-icon, .overlay').on('click', function () {
-                $('.modal').removeClass('open');
-                $('.overlay').removeClass('open');
-                $('body').removeClass('open');
+document.querySelectorAll('.close-icon, .overlay').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+    document.querySelector('.overlay').classList.remove('open');
+    document.body.classList.remove('open');
 
-                if (mySwiper) {
-                    mySwiper.enable();
-                }
-            });
-        
-            setTimeout(() => {
-            loadingScreen.classList.add('is-loaded');
-            document.body.classList.remove('is-loading');
-
-            setTimeout(() => {
-                startPageAnimation();
-            }, 1000);
-
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 900);
-        }, 2000);
-        });
+    if (typeof mySwiper !== 'undefined' && mySwiper) {
+      mySwiper.enable();
+    }
+  });
+});
         </script>
 
 
