@@ -135,31 +135,111 @@
 
     <script src="js/swiper-bundle.min.js"></script>
     <script>
-        document.querySelectorAll('.modal-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const modalId = btn.dataset.modal;
+document.addEventListener('DOMContentLoaded', function () {
+  const loadingScreen = document.getElementById('loadingScreen');
+  const isSP = window.matchMedia('(max-width: 768px)').matches;
+  let mySwiper = null;
+  let spObserver = null;
 
-    document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
-    document.querySelector('.overlay').classList.add('open');
-    document.getElementById(modalId).classList.add('open');
-    document.body.classList.add('open');
+  document.body.classList.add('is-loading');
 
-    if (typeof mySwiper !== 'undefined' && mySwiper) {
-      mySwiper.disable();
+  function playSectionAnimation(target) {
+    if (!target) return;
+
+    target.classList.add('fade-in');
+
+    if (target.classList.contains('ripple-target')) {
+      target.classList.remove('ripple-on');
+      void target.offsetWidth;
+      target.classList.add('ripple-on');
     }
-  });
-});
+  }
 
-document.querySelectorAll('.close-icon, .overlay').forEach(el => {
-  el.addEventListener('click', () => {
-    document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
-    document.querySelector('.overlay').classList.remove('open');
-    document.body.classList.remove('open');
+  function initPcSwiper() {
+    mySwiper = new Swiper('.swiper', {
+      loop: false,
+      mousewheel: true,
+      allowTouchMove: true,
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+      on: {
+        slideChangeTransitionEnd: function () {
+          const activeSection = this.slides[this.activeIndex].querySelector('.l-section');
+          playSectionAnimation(activeSection);
+        }
+      }
+    });
+  }
 
-    if (typeof mySwiper !== 'undefined' && mySwiper) {
-      mySwiper.enable();
+  function initSpObserver() {
+    const targets = document.querySelectorAll('.sp .about, .sp .works, .sp .contact');
+
+    spObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('fade-in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.3
+    });
+
+    targets.forEach(target => spObserver.observe(target));
+  }
+
+  function startPageAnimation() {
+    if (!isSP) {
+      initPcSwiper();
+
+      setTimeout(() => {
+        const activeSection = mySwiper.slides[mySwiper.activeIndex].querySelector('.l-section');
+        playSectionAnimation(activeSection);
+      }, 100);
+    } else {
+      const fv = document.querySelector('.sp .fv');
+      playSectionAnimation(fv);
+      initSpObserver();
     }
+  }
+
+  document.querySelectorAll('.modal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const modalId = btn.dataset.modal;
+
+      document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+      document.querySelector('.overlay').classList.add('open');
+      document.getElementById(modalId).classList.add('open');
+      document.body.classList.add('open');
+
+      if (mySwiper) mySwiper.disable();
+    });
   });
+
+  document.querySelectorAll('.close-icon, .overlay').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+      document.querySelector('.overlay').classList.remove('open');
+      document.body.classList.remove('open');
+
+      if (mySwiper) mySwiper.enable();
+    });
+  });
+
+  setTimeout(() => {
+    loadingScreen.classList.add('is-loaded');
+    document.body.classList.remove('is-loading');
+
+    setTimeout(() => {
+      startPageAnimation();
+    }, 1000);
+
+    setTimeout(() => {
+      loadingScreen.style.display = 'none';
+    }, 900);
+  }, 2000);
 });
         </script>
 
